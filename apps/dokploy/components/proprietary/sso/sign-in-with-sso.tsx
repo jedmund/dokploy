@@ -30,10 +30,15 @@ type SSOEmailForm = z.infer<typeof ssoEmailSchema>;
 interface SignInWithSSOProps {
 	/** Content shown when SSO is collapsed (e.g. email/password form) */
 	children: React.ReactNode;
+	/** Start in expanded (SSO-first) state. Used for primary-SSO mode. */
+	defaultExpanded?: boolean;
 }
 
-export function SignInWithSSO({ children }: SignInWithSSOProps) {
-	const [expanded, setExpanded] = useState(false);
+export function SignInWithSSO({
+	children,
+	defaultExpanded = false,
+}: SignInWithSSOProps) {
+	const [expanded, setExpanded] = useState(defaultExpanded);
 
 	const form = useForm<SSOEmailForm>({
 		resolver: zodResolver(ssoEmailSchema),

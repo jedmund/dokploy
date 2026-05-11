@@ -1,6 +1,10 @@
 import { validateRequest } from "@dokploy/server";
+import { SELF_HOSTED_SSO_ENABLED } from "@dokploy/server/constants";
 import { createServerSideHelpers } from "@trpc/react-query/server";
-import type { GetServerSidePropsContext } from "next";
+import type {
+	GetServerSidePropsContext,
+	InferGetServerSidePropsType,
+} from "next";
 import type { ReactElement } from "react";
 import superjson from "superjson";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
@@ -9,23 +13,29 @@ import { SSOSettings } from "@/components/proprietary/sso/sso-settings";
 import { Card } from "@/components/ui/card";
 import { appRouter } from "@/server/api/root";
 
-const Page = () => {
+const Page = ({
+	selfHostedSsoEnabled,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
 	return (
 		<div className="w-full">
 			<div className="h-full rounded-xl max-w-5xl mx-auto flex flex-col gap-4">
 				<Card className="h-full bg-sidebar p-2.5 rounded-xl mx-auto w-full">
 					<div className="rounded-xl bg-background shadow-md">
 						<div className="p-6">
-							<EnterpriseFeatureGate
-								lockedProps={{
-									title: "Enterprise SSO",
-									description:
-										"Single sign-on (SSO) with OIDC and SAML is part of Dokploy Enterprise. Add a valid license to configure it.",
-									ctaLabel: "Go to License",
-								}}
-							>
+							{selfHostedSsoEnabled ? (
 								<SSOSettings />
-							</EnterpriseFeatureGate>
+							) : (
+								<EnterpriseFeatureGate
+									lockedProps={{
+										title: "Enterprise SSO",
+										description:
+											"Single sign-on (SSO) with OIDC and SAML is part of Dokploy Enterprise. Add a valid license to configure it.",
+										ctaLabel: "Go to License",
+									}}
+								>
+									<SSOSettings />
+								</EnterpriseFeatureGate>
+							)}
 						</div>
 					</div>
 				</Card>
@@ -76,6 +86,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 	return {
 		props: {
 			trpcState: helpers.dehydrate(),
+			selfHostedSsoEnabled: SELF_HOSTED_SSO_ENABLED,
 		},
 	};
 }

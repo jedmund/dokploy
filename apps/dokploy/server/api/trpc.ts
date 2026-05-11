@@ -8,6 +8,7 @@
  */
 
 // import { getServerAuthSession } from "@/server/auth";
+import { SELF_HOSTED_SSO_ENABLED } from "@dokploy/server/constants";
 import { db } from "@dokploy/server/db";
 import { hasValidLicense } from "@dokploy/server/index";
 import type { statements } from "@dokploy/server/lib/access-control";
@@ -231,6 +232,41 @@ export const enterpriseProcedure = t.procedure.use(async ({ ctx, next }) => {
 			code: "FORBIDDEN",
 			message: "Valid enterprise license required",
 		});
+	}
+
+	return next({
+		ctx: {
+			session: ctx.session,
+			user: ctx.user,
+		},
+	});
+});
+
+/**
+ * Requires admin/owner role AND (a valid enterprise license OR the self-hosted SSO opt-in).
+ * Used for SSO-only endpoints so self-hosted instances can enable OIDC via the
+ * DOKPLOY_ENABLE_SELF_HOSTED_SSO env var without holding an enterprise license.
+ */
+export const ssoProcedure = t.procedure.use(async ({ ctx, next }) => {
+	if (
+		!ctx.session ||
+		!ctx.user ||
+		(ctx.user.role !== "owner" && ctx.user.role !== "admin")
+	) {
+		throw new TRPCError({ code: "UNAUTHORIZED" });
+	}
+
+	if (!SELF_HOSTED_SSO_ENABLED) {
+		const hasValidLicenseResult = await hasValidLicense(
+			ctx.session.activeOrganizationId,
+		);
+
+		if (!hasValidLicenseResult) {
+			throw new TRPCError({
+				code: "FORBIDDEN",
+				message: "Valid enterprise license required",
+			});
+		}
 	}
 
 	return next({

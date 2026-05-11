@@ -4,6 +4,11 @@ import Docker from "dockerode";
 
 export const IS_CLOUD = process.env.IS_CLOUD === "true";
 
+export const SELF_HOSTED_SSO_ENABLED =
+	process.env.DOKPLOY_ENABLE_SELF_HOSTED_SSO === "true";
+
+export const SSO_PRIMARY = process.env.DOKPLOY_SSO_PRIMARY === "true";
+
 export const DOKPLOY_DOCKER_API_VERSION =
 	process.env.DOKPLOY_DOCKER_API_VERSION;
 export const DOKPLOY_DOCKER_HOST = process.env.DOKPLOY_DOCKER_HOST;

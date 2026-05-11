@@ -1,4 +1,5 @@
 import { IS_CLOUD, isAdminPresent } from "@dokploy/server";
+import { SSO_PRIMARY } from "@dokploy/server/constants";
 import { validateRequest } from "@dokploy/server/lib/auth";
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
@@ -52,8 +53,9 @@ type LoginForm = z.infer<typeof LoginSchema>;
 
 interface Props {
 	IS_CLOUD: boolean;
+	ssoPrimary?: boolean;
 }
-export default function Home({ IS_CLOUD }: Props) {
+export default function Home({ IS_CLOUD, ssoPrimary = false }: Props) {
 	const router = useRouter();
 	const { config: whitelabeling } = useWhitelabelingPublic();
 	const { data: showSignInWithSSO } = api.sso.showSignInWithSSO.useQuery();
@@ -248,7 +250,9 @@ export default function Home({ IS_CLOUD }: Props) {
 				{!isTwoFactor ? (
 					<>
 						{showSignInWithSSO ? (
-							<SignInWithSSO>{loginContent}</SignInWithSSO>
+							<SignInWithSSO defaultExpanded={ssoPrimary}>
+								{loginContent}
+							</SignInWithSSO>
 						) : (
 							loginContent
 						)}
@@ -417,6 +421,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 		return {
 			props: {
 				IS_CLOUD: IS_CLOUD,
+				ssoPrimary: SSO_PRIMARY,
 			},
 		};
 	}
@@ -445,6 +450,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 	return {
 		props: {
 			hasAdmin,
+			ssoPrimary: SSO_PRIMARY,
 		},
 	};
 }
