@@ -1,7 +1,10 @@
 import { validateRequest } from "@dokploy/server";
 import { SELF_HOSTED_SSO_ENABLED } from "@dokploy/server/constants";
 import { createServerSideHelpers } from "@trpc/react-query/server";
-import type { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import type {
+	GetServerSidePropsContext,
+	InferGetServerSidePropsType,
+} from "next";
 import type { ReactElement } from "react";
 import superjson from "superjson";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
